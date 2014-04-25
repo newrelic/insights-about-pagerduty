@@ -9,15 +9,15 @@ PAGERDUTY_TOKEN       = ENV['PAGERDUTY_TOKEN']
 INSIGHTS_INSERT_KEY   = ENV['INSIGHTS_INSERT_KEY']
 FETCH_INCIDENTS_SINCE = ENV['FETCH_INCIDENTS_SINCE'] || 5 * 60
 
-
 incidents_this_tw = HTTParty.get(
     'https://newrelic.pagerduty.com/api/v1/incidents', 
-    :query => {:until => Time.now, :since => FETCH_INCIDENTS_SINCE,
+    :query => {:until => Time.now, :since => (Time.now - FETCH_INCIDENTS_SINCE),
                :status => 'resolved', },
     :headers => {"Authorization" => "Token token=#{PAGERDUTY_TOKEN}"})
 
-
-exit if incidents_this_tw['incidents'].nil?
+if incidents_this_tw['incidents'].nil?
+  raise incidents_this_tw.inspect
+end
 
 events = []
 incidents_this_tw['incidents'].each do |incident|
@@ -27,7 +27,7 @@ incidents_this_tw['incidents'].each do |incident|
 
   incidents_log = HTTParty.get(
     "https://newrelic.pagerduty.com/api/v1/incidents/#{incident['id']}/log_entries", 
-    :query => {:offset => 0, :limit => 20},
+    :query => {:offset => 0, :limit => 100},
     :headers => {"Authorization" => "Token token=#{PAGERDUTY_TOKEN}"})
 
   first_assignment = 
@@ -38,6 +38,7 @@ incidents_this_tw['incidents'].each do |incident|
 
   events << {
     'eventType'                  => 'PagerdutyIncident',
+    'eventVersion'               => 1,
     'incident_number'            => incident['incident_number'].to_i,
     'incident_url'               => incident['html_url'],
     'incident_key'               => incident['incident_key'],
@@ -59,7 +60,7 @@ incidents_this_tw['incidents'].each do |incident|
   }
 end
 
-HTTParty.post('https://rubicon-staging.newrelic.com/accounts/1/events',
+response = HTTParty.post('https://staging-insights-collector.newrelic.com/beta_api/accounts/1/events',
             :body    => Yajl::Encoder.encode(events),
             :headers => {'Content-Type' => 'application/json',
                          'X-Insert-Key' => INSIGHTS_INSERT_KEY})
