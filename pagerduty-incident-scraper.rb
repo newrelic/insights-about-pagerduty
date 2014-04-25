@@ -7,7 +7,7 @@ require 'time'
 
 PAGERDUTY_TOKEN       = ENV['PAGERDUTY_TOKEN']
 INSIGHTS_INSERT_KEY   = ENV['INSIGHTS_INSERT_KEY']
-FETCH_INCIDENTS_SINCE = ENV['FETCH_INCIDENTS_SINCE'] || 5 * 60
+FETCH_INCIDENTS_SINCE = ENV['FETCH_INCIDENTS_SINCE'] || 10 * 60
 
 incidents_this_tw = HTTParty.get(
     'https://newrelic.pagerduty.com/api/v1/incidents', 
