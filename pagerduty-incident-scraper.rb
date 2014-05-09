@@ -38,7 +38,7 @@ incidents_this_tw['incidents'].each do |incident|
 
   events << {
     'eventType'                  => 'PagerdutyIncident',
-    'eventVersion'               => 1,
+    'eventVersion'               => 2,
     'incident_number'            => incident['incident_number'].to_i,
     'incident_url'               => incident['html_url'],
     'incident_key'               => incident['incident_key'],
