@@ -12,7 +12,7 @@ INSIGHTS_EVENT_URL    = ENV['INSIGHTS_EVENT_URL']
 FETCH_INCIDENTS_SINCE = ENV['FETCH_INCIDENTS_SINCE'] || 10 * 60
 
 incidents_this_tw = HTTParty.get(
-    'https://#{PAGERDUTY_DOMAIN}.pagerduty.com/api/v1/incidents', 
+    "https://#{PAGERDUTY_DOMAIN}.pagerduty.com/api/v1/incidents", 
     :query => {:until => Time.now, :since => (Time.now - FETCH_INCIDENTS_SINCE),
                :status => 'resolved', },
     :headers => {"Authorization" => "Token token=#{PAGERDUTY_TOKEN}"})
