@@ -43,6 +43,7 @@ SELECT count(*) from PagerdutyIncident FACET first_assigned_to_user SINCE 1 week
 ```sql
 SELECT histogram(created_on_hour, 24, 24) from PagerdutyIncident WHERE eventVersion >= 2 SINCE 1 week ago
 ```
+![alert hour histogram](http://i.imgur.com/hzgEWoZ.png)
 ####Wait, what's eventVersion?
 Because Insights doesn't currently allow modification of stored events, if the schema of the events sent in changes, it can be hard to make queries that depend on the schema looking a certain way. This script sends an `eventVersion` integer attribute that you should increment if you change the schema of the events you send. For this query, `created_on_hour` was changed from a string to an integer in eventVersion 2, so it's scoped to those.
 
@@ -50,11 +51,13 @@ Because Insights doesn't currently allow modification of stored events, if the s
 ```sql
 SELECT histogram(open_duration, 600) from PagerdutyIncident SINCE 1 week ago
 ```
+![incident open time histogram](http://i.imgur.com/i2m9LBt.png)
 
 ###How many incidents are being routed to my team?
 ```sql
-SELECT count(*) from PagerdutyIncident WHERE  escalation_policy_name='Data Services' SINCE 1 week ago TIMESERIES
+SELECT count(*) from PagerdutyIncident WHERE  escalation_policy_name='Site Services' SINCE 1 week ago TIMESERIES
 ```
+![Escalation policy alert count chart](http://i.imgur.com/drTSyAG.png)
 
 ##Contributing
 
