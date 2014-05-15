@@ -6,11 +6,13 @@ require 'httparty'
 require 'time'
 
 PAGERDUTY_TOKEN       = ENV['PAGERDUTY_TOKEN']
+PAGERDUTY_DOMAIN      = ENV['PAGERDUTY_DOMAIN']
 INSIGHTS_INSERT_KEY   = ENV['INSIGHTS_INSERT_KEY']
+INSIGHTS_EVENT_URL    = ENV['INSIGHTS_EVENT_URL']
 FETCH_INCIDENTS_SINCE = ENV['FETCH_INCIDENTS_SINCE'] || 10 * 60
 
 incidents_this_tw = HTTParty.get(
-    'https://newrelic.pagerduty.com/api/v1/incidents', 
+    'https://#{PAGERDUTY_DOMAIN}.pagerduty.com/api/v1/incidents', 
     :query => {:until => Time.now, :since => (Time.now - FETCH_INCIDENTS_SINCE),
                :status => 'resolved', },
     :headers => {"Authorization" => "Token token=#{PAGERDUTY_TOKEN}"})
@@ -26,7 +28,7 @@ incidents_this_tw['incidents'].each do |incident|
   open_duration = closed_on - created_on
 
   incidents_log = HTTParty.get(
-    "https://newrelic.pagerduty.com/api/v1/incidents/#{incident['id']}/log_entries", 
+    "https://#{PAGERDUTY_DOMAIN}.pagerduty.com/api/v1/incidents/#{incident['id']}/log_entries", 
     :query => {:offset => 0, :limit => 100},
     :headers => {"Authorization" => "Token token=#{PAGERDUTY_TOKEN}"})
 
@@ -60,7 +62,7 @@ incidents_this_tw['incidents'].each do |incident|
   }
 end
 
-response = HTTParty.post('https://staging-insights-collector.newrelic.com/beta_api/accounts/1/events',
+response = HTTParty.post(INSIGHTS_EVENT_URL,
             :body    => Yajl::Encoder.encode(events),
             :headers => {'Content-Type' => 'application/json',
                          'X-Insert-Key' => INSIGHTS_INSERT_KEY})
