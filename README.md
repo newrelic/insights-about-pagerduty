@@ -18,7 +18,7 @@ Find answers to these and more by using New Relic Insights to query your PagerDu
  * INSIGHTS_EVENT_URL: The URL to send Insights events to. Formed like `https://insights.newrelic.com/beta_api/accounts/<your account id>/events`.
 
 ###Optional environment variables:
- * FETCH_INCIDENTS_SINCE: The number of seconds to look in the past for pagerduty incidents. Defaults to 10 minutes. Set this to your run interval for the script. NB: The code makes no attempt to prevent duplicate entries in Insights, so make sure this lines up.
+ * FETCH_INCIDENTS_SINCE: The number of seconds to look in the past for pagerduty incidents. Defaults to 10 minutes. Set this to your run interval for the script. You may set this to be wider when running manually to backfill events, but note that Insights only allows backdated events up to 24 hours old. NB: The code makes no attempt to prevent duplicate entries in Insights, so be careful when experimenting.
   
 ###Command line:
 ```bash
@@ -28,6 +28,33 @@ bundle exec ./insights-about-pagerduty.rb
 
 ###Heroku:
 Set the required ENV inside your heroku app and configure the Heroku Scheduler add-on to the script every 10 minutes.
+
+## Example NRQL Queries
+
+Once you've loaded some of your data, what kind of things can you find out?
+
+###Who fielded the most alerts this week?
+```sql
+SELECT count(*) from PagerdutyIncident FACET first_assigned_to_user SINCE 1 week ago TIMESERIES
+```
+![alert recipient chart](http://i.imgur.com/aMjuk7Q.png)
+
+###What hours of the day are incidents created?
+```sql
+SELECT histogram(created_on_hour, 24, 24) from PagerdutyIncident WHERE eventVersion >= 2 SINCE 1 week ago
+```
+####Wait, what's eventVersion?
+Because Insights doesn't currently allow modification of stored events, if the schema of the events sent in changes, it can be hard to make queries that depend on the schema looking a certain way. This script sends an `eventVersion` integer attribute that you should increment if you change the schema of the events you send. For this query, `created_on_hour` was changed from a string to an integer in eventVersion 2, so it's scoped to those.
+
+###How long are our incidents open?
+```sql
+SELECT histogram(open_duration, 600) from PagerdutyIncident SINCE 1 week ago
+```
+
+###How many incidents are being routed to my team?
+```sql
+SELECT count(*) from PagerdutyIncident WHERE  escalation_policy_name='Data Services' SINCE 1 week ago TIMESERIES
+```
 
 ##Contributing
 
