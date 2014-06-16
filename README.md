@@ -23,7 +23,7 @@ Find answers to these and more by using New Relic Insights to query your PagerDu
 ###Command line:
 ```bash
 bundle install
-bundle exec ./insights-about-pagerduty.rb
+bundle exec ./pagerduty-incident-scraper.rb
 ```
 
 ###Heroku:
