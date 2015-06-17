@@ -4,7 +4,7 @@ Insights about Pagerduty
 ##Purpose
 How is your oncall shift going? How many incidents did you field this week, and for what services? Is your alert noise getting worse or better?
 
-Find answers to these and more by using New Relic Insights to query your PagerDuty incident history! This is a small Ruby script, suitable for running in Heroku, that queries PagerDuty every 10 minutes and populates Insights with information about resolved PagerDuy incidents.
+Find answers to these and more by using New Relic Insights to query your PagerDuty incident history! This is a small Ruby script, suitable for running in Heroku, that queries PagerDuty every 10 minutes and populates Insights with information about resolved PagerDuty incidents.
 
 ##Usage
 ###Software required:
@@ -15,7 +15,7 @@ Find answers to these and more by using New Relic Insights to query your PagerDu
  * PAGERDUTY_TOKEN: your [PagerDuty API key](https://support.pagerduty.com/entries/23761081-Generating-an-API-Key).
  * PAGERDUTY_DOMAIN`: your PagerDuty subdomain.
  * INSIGHTS_INSERT_KEY: your New Relic Insights [insert  key](http://docs.newrelic.com/docs/insights/inserting-events#register).
- * INSIGHTS_EVENT_URL: The URL to send Insights events to. Formed like `https://insights.newrelic.com/beta_api/accounts/<your account id>/events`.
+ * INSIGHTS_EVENT_URL: The URL to send Insights events to. Formed like `https://insights-collector.newrelic.com/v1/accounts/(your account id)/events`.
 
 ###Optional environment variables:
  * FETCH_INCIDENTS_SINCE: The number of seconds to look in the past for pagerduty incidents. Defaults to 10 minutes. Set this to your run interval for the script. You may set this to be wider when running manually to backfill events, but note that Insights only allows backdated events up to 24 hours old. NB: The code makes no attempt to prevent duplicate entries in Insights, so be careful when experimenting.
