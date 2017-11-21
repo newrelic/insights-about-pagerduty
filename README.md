@@ -1,35 +1,42 @@
-# Insights about Pagerduty
+Insights about Pagerduty
+========================
 
 ## Purpose
-
 How is your oncall shift going? How many incidents did you field this week, and for what services? Is your alert noise getting worse or better?
 
-Find answers to these and more by using New Relic Insights to query your PagerDuty incident history! This is a small Ruby script, suitable for running in Heroku, that queries PagerDuty every 10 minutes and populates Insights with information about resolved PagerDuty incidents.
+Find answers to these and more by using New Relic Insights to query your PagerDuty incident history! This is a small Ruby script, suitable for running in Heroku, that queries PagerDuty every 10 minutes and populates Insights with information about resolved PagerDuy incidents.
 
 ## Usage
-
 ### Software required:
-
- * Ruby 2.1.1 or greater
+ * Ruby 2.1.1
  * Bundler
 
 ### Required environment variables:
- * `PAGERDUTY_TOKEN`: your [PagerDuty API key](https://support.pagerduty.com/entries/23761081-Generating-an-API-Key).
- * `PAGERDUTY_DOMAIN`: your PagerDuty subdomain.
- * `INSIGHTS_INSERT_KEY`: your New Relic Insights [insert  key](http://docs.newrelic.com/docs/insights/inserting-events#register).
- * `INSIGHTS_EVENT_URL`: The URL to send Insights events to. Formed like `https://insights-collector.newrelic.com/v1/accounts/(your account id)/events`.
+ * `PAGERDUTY_TOKEN` - your [PagerDuty API key](https://support.pagerduty.com/entries/23761081-Generating-an-API-Key).
+ * `PAGERDUTY_DOMAIN` - your PagerDuty subdomain.
+ * `INSIGHTS_INSERT_KEY` - your New Relic Insights [insert  key](http://docs.newrelic.com/docs/insights/inserting-events#register).
+ * `INSIGHTS_EVENT_URL` - The Endpoint to send Insights events to. Can be found in the examples in your Data Management -> API Keys page. Will look like: `https://insights-collector.newrelic.com/v1/accounts/<your account id>/events`.
 
 ### Optional environment variables:
- * FETCH_INCIDENTS_SINCE: The number of seconds to look in the past for pagerduty incidents. Defaults to 10 minutes. Set this to your run interval for the script. You may set this to be wider when running manually to backfill events, but note that Insights only allows backdated events up to 24 hours old. NB: The code makes no attempt to prevent duplicate entries in Insights, so be careful when experimenting.
+ * `FETCH_INCIDENTS_SINCE` - The number of seconds to look in the past for pagerduty incidents. Defaults to 10 minutes. Set this to your run interval for the script. You may set this to be wider when running manually to backfill events, but note that Insights only allows backdated events up to 24 hours old. [NB: The code makes no attempt to prevent duplicate entries in Insights, so be careful when experimenting.]
   
 ### Command line:
 ```bash
 bundle install
-bundle exec ./insights-about-pagerduty.rb
+bundle exec ./pagerduty-incident-scraper.rb
 ```
 
 ### Heroku:
-Set the required ENV inside your heroku app and configure the Heroku Scheduler add-on to the script every 10 minutes.
+Set the required ENV inside your heroku app and configure the Heroku Scheduler add-on to the script every 10 minutes. Each run is very short, so it should fit easily into free dyno hours.
+
+When configured, it will look something like this:
+
+![](images/Heroku_Resources.jpg)
+
+Then configure the Heroku Scheduler Add-on:
+
+![](images/Heroku_Scheduler.jpg)
+
 
 ## Example NRQL Queries
 
