@@ -9,7 +9,7 @@ PAGERDUTY_TOKEN       = ENV['PAGERDUTY_TOKEN']
 PAGERDUTY_DOMAIN      = ENV['PAGERDUTY_DOMAIN']
 INSIGHTS_INSERT_KEY   = ENV['INSIGHTS_INSERT_KEY']
 INSIGHTS_EVENT_URL    = ENV['INSIGHTS_EVENT_URL']
-FETCH_INCIDENTS_SINCE = ENV['FETCH_INCIDENTS_SINCE'] || 10 * 60
+FETCH_INCIDENTS_SINCE = ENV['FETCH_INCIDENTS_SINCE'].to_i || 10 * 60
 
 incidents_this_tw = HTTParty.get(
     "https://#{PAGERDUTY_DOMAIN}.pagerduty.com/api/v1/incidents", 
@@ -20,6 +20,8 @@ incidents_this_tw = HTTParty.get(
 if incidents_this_tw['incidents'].nil?
   raise incidents_this_tw.inspect
 end
+
+puts "Fetched #{incidents_this_tw['incidents'].count} incidents in last #{FETCH_INCIDENTS_SINCE} seconds"
 
 events = []
 incidents_this_tw['incidents'].each do |incident|
@@ -61,6 +63,8 @@ incidents_this_tw['incidents'].each do |incident|
     'first_assigned_to_user'     => first_assigned_to_user,
   }
 end
+
+puts "Reporting #{events.count} events to Insights"
 
 response = HTTParty.post(INSIGHTS_EVENT_URL,
             :body    => Yajl::Encoder.encode(events),
